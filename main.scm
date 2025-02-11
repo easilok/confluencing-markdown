@@ -2,11 +2,13 @@
   (json)
   (ice-9 match)
   (ice-9 string-fun)
+  (ice-9 i18n)
   (srfi srfi-19)
   (srfi srfi-43))
 
 (define confluence-page-export "doc-full.json")
 ; define confluence-page-export "doc-simple.json")
+(define unparsed-block-types '())
 
 (define (load-json-file path)
   (with-input-from-file
@@ -70,6 +72,11 @@
     (format #t "Found emoji '~a'\n" text)
     (format #f "~a" text)))
 
+(define (parse-mention-block block)
+  (let ((text (recursive-assoc-ref block '("attrs" "text"))))
+    (format #t "Found mention '~a'\n" text)
+    (format #f "*~a*" text)))
+
 (define (parse-paragraph-block block)
     "\n\n")
 
@@ -128,6 +135,25 @@
             (string-pad "" level #\#)
             (atlas->md (assoc-ref block "content")))))
 
+(define (parse-panel-block block)
+  (let ((type (recursive-assoc-ref block '("attrs" "panelType"))))
+    (format #f "\n\n> [!~a]\n> ~a\n\n"
+            ; Convert confluence panel type into GitHub markdown panel types
+            (match type
+                   (t (string-upcase type)))
+            (atlas->md (assoc-ref block "content")))))
+
+(define (parse-expand-block block)
+  (let ((title (recursive-assoc-ref block '("attrs" "title"))))
+    (format #f "\n\n<details>\n\t<summary>~a</summary>\n\n~a</details>\n\n"
+            title
+            (atlas->md (assoc-ref block "content")))))
+
+(define (parse-media-block block)
+  (let ((alt (recursive-assoc-ref block '("attrs" "alt"))))
+    (format #f "\n\n![~a](~a)\n\n"
+            alt alt)))
+
 (define (default-parse-block block)
     (atlas->md (assoc-ref block "content")))
 
@@ -142,6 +168,7 @@
              ("text" (parse-text-block block))
              ("status" (parse-status-block block))
              ("emoji" (parse-emoji-block block))
+             ("mention" (parse-mention-block block))
              ("table" (parse-table-block block))
              ("tableRow" (parse-table-row-block block))
              ("tableHeader" (parse-table-header-block block))
@@ -149,16 +176,21 @@
              ("heading" (parse-heading-block block))
              ("bulletList" (parse-bullet-list-block block))
              ("listItem" (parse-list-item-block block))
+             ("panel" (parse-panel-block block))
+             ("expand" (parse-expand-block block))
+             ("mediaSingle" (default-parse-block block))
+             ("media" (parse-media-block block))
              ; block types with passtrough parsing
              ("doc" (default-parse-block block))
              ("paragraph" (default-parse-block block))
              (#f "")
              (t 
-               (format #t "Unparsed type '~a'\n" t)
+               (set! unparsed-block-types (append unparsed-block-types `(,t)))
                "")
                ; (default-parse-block block))
              ; ("paragraph" (parse-paragraph-block block))
              (_ "")))))
 
 (define markdown (atlas->md (get-page-atlas confluence-page-json)))
-(format #t "Content:\n\n~a" markdown)
+; (format #t "Content:\n\n~a" markdown)
+(format #t "Unparsed types: ~a\n" unparsed-block-types)
