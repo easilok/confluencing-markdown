@@ -1,14 +1,24 @@
 (use-modules
   (json)
+  (ice-9 i18n)
   (ice-9 match)
   (ice-9 string-fun)
-  (ice-9 i18n)
+  (ice-9 textual-ports)
   (srfi srfi-19)
   (srfi srfi-43))
 
 (define confluence-page-export "doc-full.json")
 ; define confluence-page-export "doc-simple.json")
 (define unparsed-block-types '())
+; Set this to true for file logging
+(define logger? #f)
+
+(define (create-logger)
+  (put-string (open-file ".log" "w") "")
+  (if logger?
+    (lambda (msg)
+      (put-string (open-file ".log" "a") msg))
+    (lambda (msg) #f)))
 
 (define (load-json-file path)
   (with-input-from-file
@@ -49,7 +59,7 @@
 (define (parse-text-block block)
   (let ((text (assoc-ref block "text"))
         (style (recursive-assoc-ref block '("marks" "type"))))
-    (format #t "Found text '~a' with style ~a\n" text style)
+    (log-msg (format #f "Found text '~a' with style ~a\n" text style))
     ; TODO: marks is an array of types
     (match style
            ("strong" (format #f "**~a**" text))
@@ -59,22 +69,22 @@
 (define (parse-date-block block)
   (let* ((epoch (recursive-assoc-ref block '("attrs" "timestamp")))
          (date (string-epoch->date epoch)))
-    (format #t "Found date '~a'\n" epoch)
+    (log-msg (format #f "Found date '~a'\n" epoch))
     (format #f "~a" (date->string date "~b ~e, ~Y"))))
 
 (define (parse-status-block block)
   (let ((text (recursive-assoc-ref block '("attrs" "text"))))
-    (format #t "Found status '~a'\n" text)
+    (log-msg (format #f "Found status '~a'\n" text))
     (format #f "`~a`" text)))
 
 (define (parse-emoji-block block)
   (let ((text (recursive-assoc-ref block '("attrs" "text"))))
-    (format #t "Found emoji '~a'\n" text)
+    (log-msg (format #f "Found emoji '~a'\n" text))
     (format #f "~a" text)))
 
 (define (parse-mention-block block)
   (let ((text (recursive-assoc-ref block '("attrs" "text"))))
-    (format #t "Found mention '~a'\n" text)
+    (log-msg (format #f "Found mention '~a'\n" text))
     (format #f "*~a*" text)))
 
 (define (parse-paragraph-block block)
@@ -161,7 +171,7 @@
   (if (vector? block)
     (vector-parse-block block)
     (let ( (type (assoc-ref block "type")))
-      ; (format #t "Evaluating type ~a\n" type)
+      ; (log-msg (format #f "Evaluating type ~a\n" type))
       (match type
              ("bodiedExtension" (parse-bodied-extension-block block))
              ("date" (parse-date-block block))
@@ -191,6 +201,8 @@
              ; ("paragraph" (parse-paragraph-block block))
              (_ "")))))
 
+(define log-msg (create-logger))
 (define markdown (atlas->md (get-page-atlas confluence-page-json)))
-; (format #t "Content:\n\n~a" markdown)
-(format #t "Unparsed types: ~a\n" unparsed-block-types)
+(log-msg (format #f "Unparsed types: ~a\n" unparsed-block-types))
+
+(format #t "~a\n" markdown)
