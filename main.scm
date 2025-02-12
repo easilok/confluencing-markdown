@@ -128,10 +128,10 @@
 (define (parse-table-cell-block block)
   (format #f " ~a |"
           (string-replace-substring
-            (string-replace-substring
+            (string-trim-both
               (atlas->md (assoc-ref block "content"))
-              "\n" "")
-            "-" "")))
+              #\newline)
+              "\n" "<br/>")))
 
 (define (parse-bullet-list-block block)
   (format #f "\n\n~a\n" (atlas->md (assoc-ref block "content"))))
@@ -141,7 +141,7 @@
 
 (define (parse-heading-block block)
   (let ((level (recursive-assoc-ref block '("attrs" "level"))))
-    (format #f "\n\n~a ~a\n\n" 
+    (format #f "\n\n~a ~a\n\n"
             (string-pad "" level #\#)
             (atlas->md (assoc-ref block "content")))))
 
