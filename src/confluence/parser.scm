@@ -1,60 +1,15 @@
-(use-modules
-  (json)
-  (ice-9 i18n)
-  (ice-9 match)
-  (ice-9 string-fun)
-  (ice-9 textual-ports)
-  (srfi srfi-19)
-  (srfi srfi-43))
+(define-module (confluence parser)
+  #:use-module (confluence utils)
+  #:use-module (service logger)
+  #:use-module (util common)
+  #:use-module (ice-9 match)
+  #:use-module (ice-9 string-fun)
+  #:use-module (srfi srfi-19)
+  #:export (atlas->md
+             atlas-unparsed-block-types))
 
-(define confluence-page-export "doc-full.json")
-; define confluence-page-export "doc-simple.json")
-(define unparsed-block-types '())
-; Set this to true for file logging
-(define logger? #f)
 
-(define (create-logger)
-  (put-string (open-file ".log" "w") "")
-  (if logger?
-    (lambda (msg)
-      (put-string (open-file ".log" "a") msg))
-    (lambda (msg) #f)))
-
-(define (load-json-file path)
-  (with-input-from-file
-    path
-    (lambda() (json->scm))))
-
-(define (recursive-assoc-ref a keys)
-  (match keys
-         ((k rest ...)
-          (let ((value (assoc-ref a k)))
-            (if value
-              (recursive-assoc-ref value rest)
-              #f)))
-         (() a)))
-
-(define (string-epoch->date str)
-  (let* ((epoch (string->number str))
-         ; epoch comes in milliseconds and `make-time` accepts seconds
-         (t (make-time time-utc 0 (/ epoch 1000))))
-    (time-utc->date t)))
-
-(define (vector-parse-block content)
-  (let ((md ""))
-    (vector-for-each
-      (lambda (i block) (set! md (string-append md (atlas->md block))))
-      content)
-    md))
-
-(define confluence-page-json 
-  (load-json-file confluence-page-export))
-
-(define (get-page-atlas page)
-  (let* ((body (assoc-ref confluence-page-json "body"))
-         (atlas (assoc-ref body "atlas_doc_format"))
-         (content (assoc-ref atlas "value")))
-    (json-string->scm content)))
+(define atlas-unparsed-block-types '())
 
 (define (parse-text-block block)
   (let ((text (assoc-ref block "text"))
@@ -89,20 +44,6 @@
 
 (define (parse-paragraph-block block)
     "\n\n")
-
-(define (parse-bodied-extension-block-legacy block)
-    (let ((ret "")
-          (attrs (assoc-ref block "attrs"))
-          (content (assoc-ref block "content")))
-        (if attrs 
-          (let ((parameters (assoc-ref attrs "parameters")))
-            (if parameters 
-              (let ((metadata (assoc-ref parameters "macroMetadata")))
-                (if metadata
-                  (let ((title (assoc-ref metadata "title")))
-                    (if title
-                      (set! ret title))))))))
-        (format #f "~a\n\n~a" ret (atlas->md content))))
 
 (define (parse-bodied-extension-block block)
     (let ((ret "")
@@ -169,7 +110,7 @@
 
 (define (atlas->md block)
   (if (vector? block)
-    (vector-parse-block block)
+    (vector-parse-block block atlas->md)
     (let ( (type (assoc-ref block "type")))
       ; (log-msg (format #f "Evaluating type ~a\n" type))
       (match type
@@ -195,14 +136,9 @@
              ("paragraph" (default-parse-block block))
              (#f "")
              (t 
-               (set! unparsed-block-types (append unparsed-block-types `(,t)))
+               (set! atlas-unparsed-block-types (append atlas-unparsed-block-types `(,t)))
                "")
                ; (default-parse-block block))
              ; ("paragraph" (parse-paragraph-block block))
              (_ "")))))
 
-(define log-msg (create-logger))
-(define markdown (atlas->md (get-page-atlas confluence-page-json)))
-(log-msg (format #f "Unparsed types: ~a\n" unparsed-block-types))
-
-(format #t "~a\n" markdown)
