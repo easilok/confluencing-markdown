@@ -15,7 +15,7 @@ This application is built on top of `guile 3` and requires the
 - [x] **Panel**, which has `"attrs"."panelType": "warning"` for setting its type.
 - [x] **Expand**, which has `"attrs"."title"` as the expandable block title.
 - [x] logging system
-- [ ] Split code in modules.
+- [x] Split code in modules.
 - [ ] **Text block marks**, which sets the text styles, like bold, code, etc. Style is present at `"marks"[]."type"`.
 - [ ] **Refactor tables**, as markdown tables require header + separator row, this format is incompatible with the
   header column table block of confluence. Tables require a refactor to:
