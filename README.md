@@ -16,18 +16,21 @@ This application is built on top of `guile 3` and requires the
 - [x] **Expand**, which has `"attrs"."title"` as the expandable block title.
 - [x] logging system
 - [x] Split code in modules.
-- [ ] **Text block marks**, which sets the text styles, like bold, code, etc. Style is present at `"marks"[]."type"`.
+- [x] **Text block marks**, which sets the text styles, like bold, code, etc. Style is present at `"marks"[]."type"`.
+- [ ] **CLI Flags**, add flags to:
+    - Output file (--output/-o)
+    - Enable logger (--logger-file)
+    - Input file (last non option arg)
+- [ ] **Paragraph**, new new lines to represent new paragraphs.
 - [ ] **Refactor tables**, as markdown tables require header + separator row, this format is incompatible with the
   header column table block of confluence. Tables require a refactor to:
     - Add the separator row when table has already an header row
     - Add an empty header row and separator if there is an header column
-- [ ] **Paragraph**, new new lines to represent new paragraphs.
 - [ ] **Newline cleanup**, several blocks add two newlines for context spliting, making multiple newlines possible.
   Final result need to cleaned from more than two newlines into two newlines.
 - [ ] **Numbered list**, what is the block type?
 - [ ] **Nested list**, add parsing of nested list.
 - [ ] **Caption**, which is a content object of the `mediaSingle` block. How to handle it with proper format?
-- [ ] Output parsed content to file.
 - [ ] Fetch from confluence by space and page id:
     - Use env/config for setting token (and CLI flag to override)
     - CLI flags for space (default in config) and page ID
