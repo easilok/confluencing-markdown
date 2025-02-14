@@ -12,14 +12,20 @@
 (define atlas-unparsed-block-types '())
 
 (define (parse-text-block block)
-  (let ((text (assoc-ref block "text"))
-        (style (recursive-assoc-ref block '("marks" "type"))))
-    (log-msg (format #f "Found text '~a' with style ~a\n" text style))
+  (let* ((text (assoc-ref block "text"))
+        (marks (assoc-ref block "marks"))
+        (styles (parse-text-styles marks)))
+    (log-msg (format #f "Found text '~a' with marks '~a' resultint in styles '~a'\n" text marks styles))
     ; TODO: marks is an array of types
-    (match style
+    (for-each
+      (lambda (style)
+        (set! text
+          (match style
            ("strong" (format #f "**~a**" text))
            ("code" (format #f "`~a`" text))
            (_ text))))
+      styles)
+    text))
 
 (define (parse-date-block block)
   (let* ((epoch (recursive-assoc-ref block '("attrs" "timestamp")))
@@ -63,8 +69,8 @@
 (define (parse-table-header-block block)
   (let ((th (atlas->md (assoc-ref block "content"))))
     (if (string-contains th "**")
-      (format #f " ~a |" th))
-      (format #f " **~a** |" th)))
+      (format #f " ~a |" th)
+      (format #f " **~a** |" th))))
 
 (define (parse-table-cell-block block)
   (format #f " ~a |"
