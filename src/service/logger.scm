@@ -1,4 +1,5 @@
 (define-module (service logger)
+  #:declarative? #f
   #:use-module (ice-9 textual-ports)
   #:export (log-msg
              create-logger))
