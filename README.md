@@ -7,6 +7,30 @@ A cli application to convert a Confluence document into a simplified markdown fi
 This application is built on top of `guile 3` and requires the
 [guile-json](https://github.com/aconchillo/guile-json) module for parsing the JSON output from Atlassian's REST API.
 
+## Usage
+
+The entrypoint of the application is located at the `src/main.scm` which is itself an executable script file that can be
+run with `./src/main.scm`.
+
+> [!IMPORTANT]
+> If the script fails to execute properly, run as a guile script with the command 
+> `guile -L src -e main -s src/main.scm`.
+
+The command full usage signature:
+
+```shell
+./src/main.scm [--output/-o --logger/-l --log-file] input.json
+```
+
+### Command line arguments
+
+- `--ouput`/`-o` sets the file path to save the markdown version of the received confluence page. It's optional and, if
+  note provided, will use standard output to print the markdown content.
+- `--logger/-l` activates the application logger. If no `log-file` is provided, it will use the `.log` as file.
+- `--log-file` sets a custom file path to use as the application logger. If provided, the `logger` argument can be
+  omitted.
+- `input.json` is the only required argument and contains the confluence page API response for parsing.
+
 ## TODO
 
 - [x] **Table list**, ~~add conversion of table cell list to semicolon separated values~~, trimmed start and ending new
@@ -17,7 +41,7 @@ This application is built on top of `guile 3` and requires the
 - [x] logging system
 - [x] Split code in modules.
 - [x] **Text block marks**, which sets the text styles, like bold, code, etc. Style is present at `"marks"[]."type"`.
-- [ ] **CLI Flags**, add flags to:
+- [x] **CLI Flags**, add flags to:
     - Output file (--output/-o)
     - Enable logger (--logger-file)
     - Input file (last non option arg)
