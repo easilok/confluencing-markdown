@@ -58,7 +58,7 @@
           (content (assoc-ref block "content")))
       (if title
         (set! ret title))
-      (format #f "~a\n\n~a" ret (atlas->md content))))
+      (format #f "## ~a\n\n~a" ret (atlas->md content))))
 
 (define (parse-table-block block)
   (format #f "\n\n~a\n" (atlas->md (assoc-ref block "content"))))
