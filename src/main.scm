@@ -1,16 +1,36 @@
+#!/usr/bin/env -S guile -e main -L src/ -s
+!#
+
 (use-modules
+  (config cli)
   (util common)
   (service logger)
+  (ice-9 getopt-long)
   (confluence document)
   (confluence parser))
 
 (define confluence-page-export "doc-full.json")
-; define confluence-page-export "../doc-simple.json")
+; (define confluence-page-export "doc-simple.json")
 ; Set this to true for file logging
-(define logger? #f)
 
-(create-logger logger?)
-(define markdown (atlas->md (confluence-get-page confluence-page-export)))
-(log-msg (format #f "Unparsed types: ~a\n" atlas-unparsed-block-types))
+(define (main args)
+    (let* ((user-options (load-options))
+            (output-file (option-ref user-options 'output #f))
+            (input-file (option-ref user-options '() #f))
+            (logger? (option-ref user-options 'logger #f))
+            (log-file (option-ref user-options 'log-file ".log")))
 
-(format #t "~a\n" markdown)
+      (if (or (not input-file) (null? input-file))
+        (begin
+          (format #t "Must provide the input file to parse!\n")
+          (exit 1)))
+
+      (format #t "Starting Confluence parser with:\n")
+      (format #t "\t- Input: ~a\n\t- Output: ~a\n" input-file output-file)
+      (if (or logger? log-file) (format #t "\t- Log-file: ~a\n" log-file))
+
+      (create-logger logger?)
+
+      (let ((markdown (atlas->md (confluence-get-page (car input-file)))))
+        (log-msg (format #f "Unparsed types: ~a\n" atlas-unparsed-block-types))
+        (save-markdown markdown output-file))))
