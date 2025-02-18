@@ -49,7 +49,7 @@
     (format #f "*~a*" text)))
 
 (define (parse-paragraph-block block)
-    "\n\n")
+  (format #f "\n\n~a\n" (atlas->md (assoc-ref block "content"))))
 
 (define (parse-bodied-extension-block block)
     (let ((ret "")
@@ -67,24 +67,25 @@
   (format #f "|~a\n" (atlas->md (assoc-ref block "content"))))
 
 (define (parse-table-header-block block)
-  (let ((th (atlas->md (assoc-ref block "content"))))
-    (if (string-contains th "**")
-      (format #f " ~a |" th)
-      (format #f " **~a** |" th))))
+  (let ((th (clean-confluence-newlines
+              (atlas->md (assoc-ref block "content")))))
+      (if (string-contains th "**")
+        (format #f " ~a |" th)
+        (format #f " **~a** |" th))))
 
 (define (parse-table-cell-block block)
   (format #f " ~a |"
           (string-replace-substring
-            (string-trim-both
-              (atlas->md (assoc-ref block "content"))
-              #\newline)
-              "\n" "<br/>")))
+            (clean-confluence-newlines
+              (atlas->md (assoc-ref block "content")))
+            "\n" "<br/>")))
 
 (define (parse-bullet-list-block block)
   (format #f "\n\n~a\n" (atlas->md (assoc-ref block "content"))))
 
 (define (parse-list-item-block block)
-  (format #f "- ~a\n" (atlas->md (assoc-ref block "content"))))
+  (format #f "- ~a\n" (clean-confluence-newlines
+                        (atlas->md (assoc-ref block "content")))))
 
 (define (parse-heading-block block)
   (let ((level (recursive-assoc-ref block '("attrs" "level"))))
@@ -95,10 +96,8 @@
 (define (parse-panel-block block)
   (let ((type (recursive-assoc-ref block '("attrs" "panelType"))))
     (format #f "\n\n> [!~a]\n> ~a\n\n"
-            ; Convert confluence panel type into GitHub markdown panel types
-            (match type
-                   (t (string-upcase type)))
-            (atlas->md (assoc-ref block "content")))))
+            (convert-confluence-panel-type type)
+            (clean-confluence-newlines (atlas->md (assoc-ref block "content"))))))
 
 (define (parse-expand-block block)
   (let ((title (recursive-assoc-ref block '("attrs" "title"))))
@@ -139,12 +138,11 @@
              ("media" (parse-media-block block))
              ; block types with passtrough parsing
              ("doc" (default-parse-block block))
-             ("paragraph" (default-parse-block block))
+             ("paragraph" (parse-paragraph-block block))
              (#f "")
              (t 
                (set! atlas-unparsed-block-types (append atlas-unparsed-block-types `(,t)))
                "")
                ; (default-parse-block block))
-             ; ("paragraph" (parse-paragraph-block block))
              (_ "")))))
 

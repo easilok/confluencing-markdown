@@ -1,8 +1,11 @@
 (define-module (confluence utils)
-  #:use-module (srfi srfi-43)
   #:use-module (service logger)
+  #:use-module (ice-9 match)
+  #:use-module (srfi srfi-43)
   #:export (vector-parse-block
-             parse-text-styles))
+             parse-text-styles
+             clean-confluence-newlines
+             convert-confluence-panel-type))
 
 (define (vector-parse-block content proc)
   (let ((md ""))
@@ -18,3 +21,10 @@
             marks))
     '()))
 
+(define (clean-confluence-newlines content)
+  (string-trim-both content #\newline))
+
+(define (convert-confluence-panel-type type)
+  ; Convert confluence panel type into GitHub markdown panel types
+  (match type
+         (t (string-upcase type))))
