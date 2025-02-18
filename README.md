@@ -45,15 +45,16 @@ The command full usage signature:
     - Output file (--output/-o)
     - Enable logger (--logger-file)
     - Input file (last non option arg)
-- [ ] **Paragraph**, new new lines to represent new paragraphs.
+- [x] **Paragraph**, new new lines to represent new paragraphs.
+- [x] **Newline cleanup**, several blocks add two newlines for context spliting, making multiple newlines possible.
+  Final result need to cleaned from more than two newlines into two newlines.
 - [ ] **Refactor tables**, as markdown tables require header + separator row, this format is incompatible with the
   header column table block of confluence. Tables require a refactor to:
     - Add the separator row when table has already an header row
     - Add an empty header row and separator if there is an header column
-- [ ] **Newline cleanup**, several blocks add two newlines for context spliting, making multiple newlines possible.
-  Final result need to cleaned from more than two newlines into two newlines.
 - [ ] **Numbered list**, what is the block type?
 - [ ] **Nested list**, add parsing of nested list.
+- [ ] **Images**, they are only provided as an id field. How can they be used here?
 - [ ] **Caption**, which is a content object of the `mediaSingle` block. How to handle it with proper format?
 - [ ] Fetch from confluence by space and page id:
     - Use env/config for setting token (and CLI flag to override)
