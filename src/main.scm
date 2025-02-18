@@ -3,11 +3,12 @@
 
 (use-modules
   (config cli)
-  (util common)
-  (service logger)
-  (ice-9 getopt-long)
   (confluence document)
-  (confluence parser))
+  (confluence parser)
+  (markdown document)
+  (service logger)
+  (util common)
+  (ice-9 getopt-long))
 
 (define confluence-page-export "doc-full.json")
 ; (define confluence-page-export "doc-simple.json")
@@ -33,4 +34,6 @@
 
       (let ((markdown (atlas->md (confluence-get-page (car input-file)))))
         (log-msg (format #f "Unparsed types: ~a\n" atlas-unparsed-block-types))
-        (save-markdown markdown output-file))))
+        (save-markdown
+          (clean-markdown-newlines markdown)
+          output-file))))
