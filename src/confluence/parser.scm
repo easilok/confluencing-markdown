@@ -96,6 +96,7 @@
 
 (define (parse-panel-block block)
   (let ((type (recursive-assoc-ref block '("attrs" "panelType"))))
+    (log-msg (format #f "Found panel with type '~a'\n" type))
     (format #f "\n\n> [!~a]\n> ~a\n\n"
             (convert-confluence-panel-type type)
             (clean-confluence-newlines (atlas->md (assoc-ref block "content"))))))

@@ -4,16 +4,19 @@
   #:export (log-msg
              create-logger))
 
-(define log-filepath ".log")
-
 (define log-msg
   (lambda (msg) #f))
 
-;; TODO: make with-file? optional
-(define (create-logger with-file?)
-  (put-string (open-file log-filepath "w") "")
-  (if with-file?
-    (set! log-msg
-      (lambda (msg)
-        (put-string (open-file log-filepath "a") msg)))))
+(define* (create-logger #:optional (log-file #f))
+         (if log-file
+           (begin
+             (put-string (open-file log-file "w") "")
+             (let ((file (open-file log-file "a")))
+               (set! log-msg
+                 (lambda (msg)
+                   (put-string file msg)))))
+           (set! log-msg
+             (lambda (msg)
+               (format #t "~a\n" msg)))))
+
 

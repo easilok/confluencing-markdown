@@ -26,7 +26,8 @@ The command full usage signature:
 
 - `--ouput`/`-o` sets the file path to save the markdown version of the received confluence page. It's optional and, if
   note provided, will use standard output to print the markdown content.
-- `--logger/-l` activates the application logger. If no `log-file` is provided, it will use the `.log` as file.
+  - `--logger`/`-l` activates the application logger. If no `log-file` is provided, it will use the standard output as long
+  as the `--output`/`-o` is provided.
 - `--log-file` sets a custom file path to use as the application logger. If provided, the `logger` argument can be
   omitted.
 - `input.json` is the only required argument and contains the confluence page API response for parsing.

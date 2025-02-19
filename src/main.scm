@@ -19,18 +19,25 @@
             (output-file (option-ref user-options 'output #f))
             (input-file (option-ref user-options '() #f))
             (logger? (option-ref user-options 'logger #f))
-            (log-file (option-ref user-options 'log-file ".log")))
+            (log-file (option-ref user-options 'log-file #f)))
 
       (if (or (not input-file) (null? input-file))
         (begin
           (format #t "Must provide the input file to parse!\n")
           (exit 1)))
 
+      (if (and logger? (not log-file) (not output-file))
+        (begin
+          (format #t "Either log-file or output-file must be set to enable logging!\n")
+          (exit 1)))
+
       (format #t "Starting Confluence parser with:\n")
       (format #t "\t- Input: ~a\n\t- Output: ~a\n" input-file output-file)
-      (if (or logger? log-file) (format #t "\t- Log-file: ~a\n" log-file))
+      (if (or logger? log-file)
+        (begin
+          (format #t "\t- Log-file: ~a\n" log-file)
+          (create-logger log-file)))
 
-      (create-logger logger?)
 
       (let ((markdown (atlas->md (confluence-get-page (car input-file)))))
         (log-msg (format #f "Unparsed types: ~a\n" atlas-unparsed-block-types))
