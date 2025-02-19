@@ -61,7 +61,8 @@
       (format #f "## ~a\n\n~a" ret (atlas->md content))))
 
 (define (parse-table-block block)
-  (format #f "\n\n~a\n" (atlas->md (assoc-ref block "content"))))
+  (let ((table (atlas->md (assoc-ref block "content"))))
+    (format #f "\n\n~a\n" (complete-table-layout table))))
 
 (define (parse-table-row-block block)
   (format #f "|~a\n" (atlas->md (assoc-ref block "content"))))

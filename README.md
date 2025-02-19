@@ -48,7 +48,7 @@ The command full usage signature:
 - [x] **Paragraph**, new new lines to represent new paragraphs.
 - [x] **Newline cleanup**, several blocks add two newlines for context spliting, making multiple newlines possible.
   Final result need to cleaned from more than two newlines into two newlines.
-- [ ] **Refactor tables**, as markdown tables require header + separator row, this format is incompatible with the
+- [x] **Refactor tables**, as markdown tables require header + separator row, this format is incompatible with the
   header column table block of confluence. Tables require a refactor to:
     - Add the separator row when table has already an header row
     - Add an empty header row and separator if there is an header column
