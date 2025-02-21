@@ -1,0 +1,8 @@
+{
+    "confluence": {
+        "username": "user@example.com",
+        "password": "generated-api-token",
+        "base-url": "https://<account>.atlassian.net/wiki/api/v2/pages",
+        "page": "page-id",
+    }
+}
