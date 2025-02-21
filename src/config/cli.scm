@@ -12,7 +12,6 @@
     (logger (single-char #\l) (value #f))
     (log-file (value #t))
     (config (single-char #\c) (value #t))
-    (token (value #t))
     (base-url (single-char #\b) (value #t))
     (page-id (single-char #\p) (value #t))))
 
