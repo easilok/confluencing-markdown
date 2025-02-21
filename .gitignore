@@ -1,1 +1,4 @@
 .log
+*.md
+*.json
+!config.example.json
