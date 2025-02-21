@@ -21,7 +21,7 @@ run with `./src/main.scm`.
 The command full usage signature:
 
 ```shell
-./src/main.scm [--output/-o --logger/-l --log-file] input.json
+./src/main.scm [--output/-o --logger/-l --log-file --config/-c --base-url/-b --page-id/-p input.json]
 ```
 
 ### Command line arguments
@@ -32,7 +32,30 @@ The command full usage signature:
   as the `--output`/`-o` is provided.
 - `--log-file` sets a custom file path to use as the application logger. If provided, the `logger` argument can be
   omitted.
-- `input.json` is the only required argument and contains the confluence page API response for parsing.
+- `--config/-c` sets the path to the application configuration file.
+- `--base-url/-b` sets the Confluence API base URL, which is tight to the workspace in use. 
+- `--page-id/-p` sets id of the page to fetch from Confluence API.
+- `input.json` is the remaining unnamed argument and contains the path to a file containing a page API response for
+  parsing.
+
+**None of the presented CLI arguments are required**, but at least either `input.json` or properties to fetch data from
+Confluence API are required in order to parse a document. The Confluence API properties can also be provided in the
+configuration file.
+
+> ![IMPORTANT]
+> Any provided CLI argument takes priority over the configuration file, overriding it.
+
+### Configuration file
+
+The application also allows for configuring some of its used properties. The configuration is made in a `JSON` file and
+provided to the application with the `--config/-c` command line option.
+
+An example configuration file is available at [config.example.json](./config.example.json) with properties:
+
+- **username**: the email with access to the Confluence API.
+- **password**: the generated API token, from the provided email with access to the Confluence API.
+- **base-url**: the base URL for the Confluence API of the workspace that owns the desired page.
+- **page**: the Confluence page ID to fetch from the API.
 
 ## TODO
 
