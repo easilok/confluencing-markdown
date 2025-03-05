@@ -11,6 +11,12 @@
 
 (define atlas-unparsed-block-types '())
 
+(define (parse-page-title-block block)
+  (let ((title (assoc-ref block "text")))
+    (format #f "# ~a\n\n~a\n"
+            title
+            (atlas->md (assoc-ref block "content")))))
+
 (define (parse-text-block block)
   (let* ((text (assoc-ref block "text"))
         (marks (assoc-ref block "marks"))
@@ -121,6 +127,7 @@
     (let ( (type (assoc-ref block "type")))
       ; (log-msg (format #f "Evaluating type ~a\n" type))
       (match type
+             ("pageTitle" (parse-page-title-block block))
              ("bodiedExtension" (parse-bodied-extension-block block))
              ("date" (parse-date-block block))
              ("text" (parse-text-block block))

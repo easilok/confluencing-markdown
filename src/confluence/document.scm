@@ -11,8 +11,12 @@
 
 ;; TODO: json lib has a :ordered prop to keep order of json objects
 (define (get-page-atlas-content page)
-  (let* ((body (assoc-ref page "body"))
+  (let* ((title (assoc-ref page "title"))
+         (body (assoc-ref page "body"))
          (atlas (assoc-ref body "atlas_doc_format"))
          (content (assoc-ref atlas "value")))
-    (json-string->scm content)))
+    ; Add custom "pageTitle" block type for setting page main title
+    `(("type" . "pageTitle")
+      ("text" . ,title)
+      ("content" . ,(json-string->scm content)))))
 
